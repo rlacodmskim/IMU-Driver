@@ -26,10 +26,31 @@ t_errVal calcIMUErr(){
     Wire.requestFrom(MPU, 6, true);
     t_accVal accVal = getAccRawContinue();
 
+    #ifdef IMU_DEBUG_CALI
+    Serial.print(accVal.accX);
+    Serial.print("/");
+    Serial.print(accVal.accY);
+    Serial.print("/");
+    Serial.println(accVal.accZ);
+    #endif
+
     // Sum all readings
     ret.AccErrorX = ret.AccErrorX + ((atan((accVal.accY) / sqrt(pow((accVal.accX), 2) + pow((accVal.accZ), 2))) * 180 / PI));
     ret.AccErrorY = ret.AccErrorY + ((atan(-1 * (accVal.accX) / sqrt(pow((accVal.accY), 2) + pow((accVal.accZ), 2))) * 180 / PI));
+    
+    #ifdef IMU_DEBUG_CALI
+    Serial.print("AccErrorX: ");
+    Serial.print(ret.AccErrorX);
+    Serial.print("/AccErrorY: ");
+    Serial.println(ret.AccErrorY);
+    #endif
   }
+  #ifdef IMU_DEBUG_CALI_FINAL_ERR
+  Serial.print("final AccErrorX: ");
+  Serial.println(ret.AccErrorX);
+  Serial.print("final AccErrorY: ");
+  Serial.println(ret.AccErrorY);
+  #endif
 
   //Divide the sum by 200 to get ghithe error value
   ret.AccErrorX = ret.AccErrorX / cali_sampling_rate;
@@ -44,10 +65,27 @@ t_errVal calcIMUErr(){
     Wire.requestFrom(MPU, 6, true);
     t_gyroVal gyroVal = getGyroRawContinue();
 
+    #ifdef IMU_DEBUG_CALI
+    Serial.print(gyroVal.gyroX);
+    Serial.print("/");
+    Serial.print(gyroVal.gyroY);
+    Serial.print("/");
+    Serial.println(gyroVal.gyroZ);
+    #endif
+
     // Sum all readings
     ret.GyroErrorX = ret.GyroErrorX + gyroVal.gyroX;
     ret.GyroErrorY = ret.GyroErrorY + gyroVal.gyroY;
     ret.GyroErrorZ = ret.GyroErrorZ + gyroVal.gyroZ;
+
+    #ifdef IMU_DEBUG_CALI
+    Serial.print("GyroErrorX: ");
+    Serial.print(ret.GyroErrorX);
+    Serial.print("/GyroErrorY: ");
+    Serial.println(ret.GyroErrorY);
+    Serial.print("GyroErrorZ: ");
+    Serial.print(ret.GyroErrorZ);
+    #endif
   }
 
   //Divide the sum by 200 to get the error value
@@ -57,22 +95,30 @@ t_errVal calcIMUErr(){
 
   return ret;
 }
-
-#ifdef IMU_DEBUG_CALI
-void printIMUErr(t_errVal errVal) {
-  // Print the error values on the Serial Monitor
-  Serial.print("AccErrorX: ");
-  Serial.println(errVal.AccErrorX);
-  Serial.print("AccErrorY: ");
-  Serial.println(errVal.AccErrorY);
-  Serial.print("GyroErrorX: ");
-  Serial.println(errVal.GyroErrorX);
-  Serial.print("GyroErrorY: ");
-  Serial.println(errVal.GyroErrorY);
-  Serial.print("GyroErrorZ: ");
-  Serial.println(errVal.GyroErrorZ);
-}
+#ifdef IMU_DEBUG_CALI_FINAL_ERR
+Serial.print("final GyroErrorX: ");
+Serial.println(ret.GyroErrorX);
+Serial.print("final GyroErrorY: ");
+Serial.println(ret.GyroErrorY);
+Serial.print("final GyroErrorZ: ");
+Serial.println(ret.GyroErrorZ);
 #endif
+
+// #ifdef IMU_DEBUG_CALI
+// void printIMUErr(t_errVal errVal) {
+//   // Print the error values on the Serial Monitor
+//   Serial.print("AccErrorX: ");
+//   Serial.println(errVal.AccErrorX);
+//   Serial.print("AccErrorY: ");
+//   Serial.println(errVal.AccErrorY);
+//   Serial.print("GyroErrorX: ");
+//   Serial.println(errVal.GyroErrorX);
+//   Serial.print("GyroErrorY: ");
+//   Serial.println(errVal.GyroErrorY);
+//   Serial.print("GyroErrorZ: ");
+//   Serial.println(errVal.GyroErrorZ);
+// }
+// #endif
 
 t_errVal calibrateIMU(){
   Serial.println("Calibration Processing...");
